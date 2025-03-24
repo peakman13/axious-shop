@@ -1,0 +1,91 @@
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom'
+import { setSelectedProduct } from '../redux/slices/ProductsSlice'
+import { FiPlus } from "react-icons/fi";
+import { FiMinus } from "react-icons/fi";
+import { addToBasket, calculateBasket, deleteProducts } from '../redux/slices/basketSlice';
+
+function ProductsDetails() {
+    const { id } = useParams();
+    const { products, selectedProduct } = useSelector((store) => store.product)
+    const { price, image, title, description } = selectedProduct;
+    const dispatch = useDispatch();
+    const [count, setCount] = useState(0)
+    const increment = () => {
+
+        setCount(count + 1)
+    }
+
+    const decrement = () => {
+
+        setCount(count - 1)
+    }
+    const addBasket = () => {
+        const payload = {
+            id,
+            price,
+            image,
+            title,
+            description,
+            count,
+        }
+        dispatch(addToBasket(payload));
+        dispatch(calculateBasket());
+
+    }
+
+    const deleteBasket = () => {
+        const payload = {
+            id,
+            price,
+            image,
+            title,
+            description,
+            count,
+        }
+        dispatch(deleteProducts(payload));
+        dispatch(calculateBasket());
+
+    }
+
+    useEffect(() => {
+        getProductById();
+    }, [])
+
+    const getProductById = () => {
+        products && products.map((product) => {
+            if (product.id == id) {
+                dispatch(setSelectedProduct(product))
+            }
+        }
+        )
+    }
+    return (
+        <div style={{ marginTop: '30px', display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+            <div style={{ marginRight: '40px' }}>
+                <img src={image} width={300} height={500} />
+            </div>
+            <div>
+                <h1 style={{ fontFamily: 'fantasy' }}>{title}</h1>
+                <p style={{ fontFamily: 'arial' }} > {description} </p>
+                <h1 style={{
+                    marginRight: '75px', fontSize: '50px,', fontFamily: 'arial', fontWeight: 'bold', color: 'darkblue', textAlign: 'right'
+                }}>{price}   £ </h1>
+                <div style={{ textAlign: 'right', marginRight: '35px' }} >
+                    <FiMinus onClick={decrement} style={{ fontSize: '30px' }} />
+
+                    <span style={{ fontSize: '45px' }}>{count}</span>
+                    <FiPlus onClick={increment} style={{ fontSize: '30px' }} />
+                </div>
+                <div style={{ textAlign: 'right', marginRight: '35px' }}>
+                    <button
+                        onClick={addBasket}
+                        style={{ margin: '25px', border: 'none', padding: '10px', backgroundColor: '', borderRadius: '5px' }}>sepete ekle</button>
+                </div>
+            </div>
+        </div >
+    )
+}
+
+export default ProductsDetails
