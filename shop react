@@ -1,0 +1,52 @@
+ import { useEffect, useState } from 'react'
+import './App.css'
+import Header from './components/Header'
+import PageContainer from './container/PageContainer'
+import RouterConfig from './config/RouterConfig'
+import Loading from './components/Loading';
+import Drawer from '@mui/material/Drawer';
+import { useDispatch, useSelector } from 'react-redux'
+import { deleteProducts, setDrawer, calculateBasket } from './redux/slices/basketSlice'
+
+
+
+function App() {
+  const { products, drawer, totalAmount } = useSelector((store) => store.basket);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(calculateBasket());
+  }, [])
+
+  return (
+    <div>
+      <PageContainer>
+        <Loading />
+        <Header />
+        <RouterConfig />
+        <Drawer onClose={() => dispatch(setDrawer())} sx={{ padding: '20px' }} anchor='right' open={drawer}>
+          {
+            products && products.map((product) => {
+              return (
+                <div key={product.id}>
+                  <div className='flex-row' style={{ padding: '20px' }}>
+                    <img style={{ marginRight: '50px' }} src={product.image} width={50} height={50} />
+                    <p style={{ width: '320px', marginRight: '5px' }}>{product.title}, ({product.count}) </p>
+                    <p style={{ fontWeight: 'bold', marginRight: '10px', width: '60px' }}> {product.price} </p>
+                    <button onClick={() => dispatch(deleteProducts())} style={{ padding: '5px', borderRadius: '5px', border: 'none', backgroundColor: 'lightgrey', color: '#fff', width: '50px' }}>Delete</button>
+                  </div>
+
+                </div>
+              )
+
+            })
+          }
+          <div><p style={{ textAlign: 'right', marginRight: '10px' }}>Total price : {totalAmount} </p></div>
+        </Drawer >
+      </PageContainer>
+
+    </div>
+  )
+}
+
+export default App
